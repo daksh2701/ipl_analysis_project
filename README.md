@@ -10,14 +10,8 @@ the deliveries and the deliveries_1 file as the both are a single dataset. Deliv
 - [About](#about)  
 - [Features](#features)  
 - [Data](#data)  
-- [Tech Stack](#tech-stack)  
-- [Project Structure](#project-structure)  
-- [Getting Started](#getting-started)  
-- [Usage](#usage)  
-- [Insights / Findings](#insights--findings)  
-- [Contributing](#contributing)  
-- [License](#license)  
-
+- [Tech Stack](#tech-stack)
+  
 ---
 
 ## About
@@ -42,7 +36,7 @@ This project aims to analyze IPL data to answer questions like:
 
 ## Data
 
-- Data source(s): *[mention where IPL data was sourced— e.g. Kaggle, IPL official stats, etc.]*  
+- Data source(s): https://www.kaggle.com/datasets/patrickb1912/ipl-complete-dataset-20082020  
 - Format: CSV / JSON / database (whichever you used)  
 - Key fields include: match date, teams, venue, runs, wickets, toss result, innings details, etc.  
 
@@ -52,7 +46,7 @@ This project aims to analyze IPL data to answer questions like:
 
 | Component | Technology / Framework |
 |-----------|-------------------------|
-| Data manipulation & analysis | Python (pandas, numpy) / R / etc. |
+| Data manipulation & analysis | Python (pandas, numpy) |  etc. |
 | Visualization | Matplotlib, Seaborn, Plotly | etc. |
 | Modeling (if any) | scikit-learn / Tensorflow / etc. |
 | Others | Jupyter notebooks, Git, etc. |
