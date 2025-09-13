@@ -48,7 +48,6 @@ This project aims to analyze IPL data to answer questions like:
 |-----------|-------------------------|
 | Data manipulation & analysis | Python (pandas, numpy) |  etc. |
 | Visualization | Matplotlib, Seaborn, Plotly | etc. |
-| Modeling (if any) | scikit-learn / Tensorflow / etc. |
 | Others | Jupyter notebooks, Git, etc. |
 
 ---
