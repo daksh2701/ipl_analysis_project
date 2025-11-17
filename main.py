@@ -72,6 +72,9 @@ tab1, tab2, tab3, tab4 = st.tabs(
     ["Overview", "Team Analysis", "Batting Analysis", "Bowling Analysis"]
 )
 
+# =========================
+# TAB 1: OVERVIEW
+# =========================
 with tab1:
     st.subheader("Overall Tournament Overview")
 
@@ -104,36 +107,33 @@ with tab1:
         st.plotly_chart(fig_mps, use_container_width=True)
 
     if "toss_decision" in matches_f.columns:
-    toss_counts = matches_f["toss_decision"].value_counts().reset_index()
-    # After value_counts: columns are like ['toss_decision', 'count']
-    toss_counts.columns = ["decision", "toss_count"]
+        toss_counts = matches_f["toss_decision"].value_counts().reset_index()
+        toss_counts.columns = ["toss_decision", "toss_count"]
+        toss_counts = toss_counts.rename(columns={"toss_decision": "decision"})
 
-    fig_toss = px.pie(
-        toss_counts,
-        names="decision",
-        values="toss_count",
-        title="Toss Decision (Bat vs Field)",
-        hole=0.4
-    )
-    st.plotly_chart(fig_toss, use_container_width=True)
+        fig_toss = px.pie(
+            toss_counts,
+            names="decision",
+            values="toss_count",
+            title="Toss Decision (Bat vs Field)",
+            hole=0.4
+        )
+        st.plotly_chart(fig_toss, use_container_width=True)
 
+    if "result" in matches_f.columns:
+        result_counts = matches_f["result"].value_counts().reset_index()
+        result_counts.columns = ["result_type", "result_count"]
 
-  if "result" in matches_f.columns:
-    result_counts = matches_f["result"].value_counts().reset_index()
-    # After value_counts: columns are like ['result', 'count']
-    result_counts.columns = ["result_type", "result_count"]
-
-    fig_res = px.bar(
-        result_counts,
-        x="result_type",
-        y="result_count",
-        title="Result Type Distribution",
-        text="result_count",
-        labels={"result_type": "Result", "result_count": "Count"}
-    )
-    fig_res.update_traces(textposition="outside")
-    st.plotly_chart(fig_res, use_container_width=True)
-
+        fig_res = px.bar(
+            result_counts,
+            x="result_type",
+            y="result_count",
+            title="Result Type Distribution",
+            text="result_count",
+            labels={"result_type": "Result", "result_count": "Count"}
+        )
+        fig_res.update_traces(textposition="outside")
+        st.plotly_chart(fig_res, use_container_width=True)
 
     if "win_by_runs" in matches_f.columns and "win_by_wickets" in matches_f.columns:
         col_a, col_b = st.columns(2)
@@ -144,7 +144,8 @@ with tab1:
                 runs_wins,
                 x="win_by_runs",
                 nbins=30,
-                title="Distribution of Victory Margin (Runs)"
+                title="Distribution of Victory Margin (Runs)",
+                labels={"win_by_runs": "Run Margin"}
             )
             st.plotly_chart(fig_runs, use_container_width=True)
 
@@ -154,17 +155,21 @@ with tab1:
                 wk_wins,
                 x="win_by_wickets",
                 nbins=10,
-                title="Distribution of Victory Margin (Wickets)"
+                title="Distribution of Victory Margin (Wickets)",
+                labels={"win_by_wickets": "Wicket Margin"}
             )
             st.plotly_chart(fig_wk, use_container_width=True)
 
+# =========================
+# TAB 2: TEAM ANALYSIS
+# =========================
 with tab2:
     st.subheader("Team Performance Analysis")
 
     if selected_team == "All":
-        st.markdown("Showing **overall** team comparison.")
+        st.markdown("Showing overall team comparison.")
     else:
-        st.markdown(f"Showing statistics **for** {selected_team}.")
+        st.markdown(f"Showing statistics for {selected_team}.")
 
     team_matches1 = (
         matches_f.groupby("team1")["id"]
@@ -268,21 +273,24 @@ with tab2:
             venue_df.groupby("winner")["id"]
             .count()
             .reset_index()
-            .rename(columns={"winner": "team", "id": "wins"})
-            .sort_values("wins", ascending=False)
+            .rename(columns={"winner": "team", "id": "wins_at_venue"})
+            .sort_values("wins_at_venue", ascending=False)
         )
 
         fig_venue_team = px.bar(
             venue_team_wins,
             x="team",
-            y="wins",
+            y="wins_at_venue",
             title=f"Wins by Team at {venue_sel}",
-            text="wins"
+            text="wins_at_venue"
         )
         fig_venue_team.update_layout(xaxis_tickangle=-45)
         fig_venue_team.update_traces(textposition="outside")
         st.plotly_chart(fig_venue_team, use_container_width=True)
 
+# =========================
+# TAB 3: BATTING ANALYSIS
+# =========================
 with tab3:
     st.subheader("Batting Analysis")
 
@@ -294,16 +302,18 @@ with tab3:
             .sort_values("batsman_runs", ascending=False)
         )
 
-        top_n = st.slider("Top N batters by runs", 5, 30, 10)
-        top_batters = batter_runs.head(top_n)
+        top_n_bat = st.slider("Top N batters by runs", 5, 30, 10)
+        top_batters = batter_runs.head(top_n_bat)
+
+        top_batters = top_batters.rename(columns={"batsman_runs": "total_runs"})
 
         fig_top_bat = px.bar(
             top_batters,
             x="batter",
-            y="batsman_runs",
-            title=f"Top {top_n} Run Scorers",
-            labels={"batter": "Batter", "batsman_runs": "Runs"},
-            text="batsman_runs"
+            y="total_runs",
+            title=f"Top {top_n_bat} Run Scorers",
+            labels={"batter": "Batter", "total_runs": "Runs"},
+            text="total_runs"
         )
         fig_top_bat.update_layout(xaxis_tickangle=-45)
         fig_top_bat.update_traces(textposition="outside")
@@ -343,30 +353,37 @@ with tab3:
                 .reset_index()
                 .sort_values("season")
             )
+            bat_season_grp = bat_season_grp.rename(columns={"batsman_runs": "season_runs"})
 
             fig_season_runs = px.line(
                 bat_season_grp,
                 x="season",
-                y="batsman_runs",
+                y="season_runs",
                 markers=True,
-                title=f"Season-wise Runs: {selected_batter}"
+                title=f"Season-wise Runs: {selected_batter}",
+                labels={"season_runs": "Runs"}
             )
             st.plotly_chart(fig_season_runs, use_container_width=True)
 
         st.markdown("### Boundary Distribution")
         boundary_counts = pd.DataFrame({
-            "type": ["4s", "6s"],
-            "count": [fours, sixes]
+            "boundary_type": ["4s", "6s"],
+            "boundary_count": [fours, sixes]
         })
         fig_boundary = px.pie(
             boundary_counts,
-            names="type",
-            values="count",
+            names="boundary_type",
+            values="boundary_count",
             title=f"Boundary Split for {selected_batter}",
             hole=0.4
         )
         st.plotly_chart(fig_boundary, use_container_width=True)
+    else:
+        st.write("Required columns for batting analysis are missing in deliveries dataset.")
 
+# =========================
+# TAB 4: BOWLING ANALYSIS
+# =========================
 with tab4:
     st.subheader("Bowling Analysis")
 
@@ -381,20 +398,20 @@ with tab4:
             wicket_df.groupby("bowler")["is_wicket"]
             .count()
             .reset_index()
-            .rename(columns={"is_wicket": "wickets"})
-            .sort_values("wickets", ascending=False)
+            .rename(columns={"is_wicket": "wickets_taken"})
+            .sort_values("wickets_taken", ascending=False)
         )
 
-        top_n_b = st.slider("Top N bowlers by wickets", 5, 30, 10)
-        top_bowlers = bowler_wk.head(top_n_b)
+        top_n_bowl = st.slider("Top N bowlers by wickets", 5, 30, 10)
+        top_bowlers = bowler_wk.head(top_n_bowl)
 
         fig_top_bowl = px.bar(
             top_bowlers,
             x="bowler",
-            y="wickets",
-            title=f"Top {top_n_b} Wicket Takers",
-            labels={"bowler": "Bowler", "wickets": "Wickets"},
-            text="wickets"
+            y="wickets_taken",
+            title=f"Top {top_n_bowl} Wicket Takers",
+            labels={"bowler": "Bowler", "wickets_taken": "Wickets"},
+            text="wickets_taken"
         )
         fig_top_bowl.update_layout(xaxis_tickangle=-45)
         fig_top_bowl.update_traces(textposition="outside")
@@ -406,7 +423,11 @@ with tab4:
         )
 
         b_df = deliveries_f[deliveries_f["bowler"] == selected_bowler]
-        legal_del = b_df[~b_df["extras_type"].isin(["wides", "noballs"])] if "extras_type" in b_df.columns else b_df
+        if "extras_type" in b_df.columns:
+            legal_del = b_df[~b_df["extras_type"].isin(["wides", "noballs"])]
+        else:
+            legal_del = b_df
+
         runs_conceded = int(b_df["total_runs"].sum())
         balls_bowled = int(legal_del.shape[0])
         overs = balls_bowled / 6 if balls_bowled > 0 else 0
@@ -437,16 +458,17 @@ with tab4:
                 bowl_season.groupby("season")["is_wicket"]
                 .count()
                 .reset_index()
-                .rename(columns={"is_wicket": "wickets"})
+                .rename(columns={"is_wicket": "season_wickets"})
                 .sort_values("season")
             )
 
             fig_season_wk = px.line(
                 bowl_season_grp,
                 x="season",
-                y="wickets",
+                y="season_wickets",
                 markers=True,
-                title=f"Season-wise Wickets: {selected_bowler}"
+                title=f"Season-wise Wickets: {selected_bowler}",
+                labels={"season_wickets": "Wickets"}
             )
             st.plotly_chart(fig_season_wk, use_container_width=True)
     else:
