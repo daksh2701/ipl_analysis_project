@@ -3,23 +3,16 @@ warnings.filterwarnings('ignore')
 
 import pandas as pd
 import numpy as np
-
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
 
-# ------------------------------------------------
-# Page config
-# ------------------------------------------------
 st.set_page_config(
     page_title="IPL Analytics Dashboard",
     page_icon="🏏",
     layout="wide"
 )
 
-# ------------------------------------------------
-# Load data
-# ------------------------------------------------
 @st.cache_data
 def load_data():
     matches = pd.read_csv("matches (2).csv")
@@ -42,7 +35,6 @@ Use this as a base and extend it with more charts later.
 
 tab1, tab2 = st.tabs(["Overview", "Sample Analysis"])
 
-# -------- Overview tab --------
 with tab1:
     st.subheader("Dataset Snapshot")
 
@@ -57,7 +49,6 @@ with tab1:
     st.write("Deliveries head:")
     st.dataframe(deliveries.head())
 
-# -------- Sample Analysis tab --------
 with tab2:
     st.subheader("Matches per Season")
 
