@@ -104,37 +104,36 @@ with tab1:
         st.plotly_chart(fig_mps, use_container_width=True)
 
     if "toss_decision" in matches_f.columns:
-        toss_counts = (
-            matches_f["toss_decision"]
-            .value_counts()
-            .reset_index()
-            .rename(columns={"index": "decision", "toss_decision": "count"})
-        )
-        fig_toss = px.pie(
-            toss_counts,
-            names="decision",
-            values="count",
-            title="Toss Decision (Bat vs Field)",
-            hole=0.4
-        )
-        st.plotly_chart(fig_toss, use_container_width=True)
+    toss_counts = matches_f["toss_decision"].value_counts().reset_index()
+    # After value_counts: columns are like ['toss_decision', 'count']
+    toss_counts.columns = ["decision", "toss_count"]
 
-    if "result" in matches_f.columns:
-        result_counts = (
-            matches_f["result"]
-            .value_counts()
-            .reset_index()
-            .rename(columns={"index": "result", "result": "count"})
-        )
-        fig_res = px.bar(
-            result_counts,
-            x="result",
-            y="count",
-            title="Result Type Distribution",
-            text="count"
-        )
-        fig_res.update_traces(textposition="outside")
-        st.plotly_chart(fig_res, use_container_width=True)
+    fig_toss = px.pie(
+        toss_counts,
+        names="decision",
+        values="toss_count",
+        title="Toss Decision (Bat vs Field)",
+        hole=0.4
+    )
+    st.plotly_chart(fig_toss, use_container_width=True)
+
+
+  if "result" in matches_f.columns:
+    result_counts = matches_f["result"].value_counts().reset_index()
+    # After value_counts: columns are like ['result', 'count']
+    result_counts.columns = ["result_type", "result_count"]
+
+    fig_res = px.bar(
+        result_counts,
+        x="result_type",
+        y="result_count",
+        title="Result Type Distribution",
+        text="result_count",
+        labels={"result_type": "Result", "result_count": "Count"}
+    )
+    fig_res.update_traces(textposition="outside")
+    st.plotly_chart(fig_res, use_container_width=True)
+
 
     if "win_by_runs" in matches_f.columns and "win_by_wickets" in matches_f.columns:
         col_a, col_b = st.columns(2)
